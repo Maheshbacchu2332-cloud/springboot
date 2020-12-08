@@ -1,4 +1,4 @@
-package com.hackathon.domain;
+package com.hackathon.entity;
 
 import java.sql.Date;
 

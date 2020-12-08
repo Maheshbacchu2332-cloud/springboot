@@ -1,10 +1,10 @@
 package com.hackathon.controller;
 
 import java.util.List;
-import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -13,68 +13,47 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-import com.hackathon.dao.UserRepository;
-import com.hackathon.domain.ItemDomain;
-
+import com.hackathon.entity.ItemDomain;
+import com.hackathon.service.HackathonService;
 
 @RestController
-@RequestMapping("api/v1")
+@Component
+@RequestMapping(path = "/api/v1")
 public class HackthonController {
 
 	@Autowired
-	private UserRepository userRepository;
+	private HackathonService service;
 
-	@GetMapping("/users")
+	@GetMapping(path = "/users")
 	public List<ItemDomain> getAllUsers() {
 
-		return userRepository.findAll();
+		return service.getAllUsers();
 
 	}
-	
-	
+
 	@GetMapping("/users/{id}")
 	public ItemDomain retrieveStudent(@PathVariable long id) throws Exception {
-		Optional<ItemDomain> user = userRepository.findById(id);
 
-		if (!user.isPresent())
-			throw new Exception("User:"+id+":not present in Database");
-
-		return user.get();
+		return service.retrieveStudent(id);
 	}
-	
+
 	@DeleteMapping("/users/{id}")
 	public void deleteStudent(@PathVariable long id) {
-		userRepository.deleteById(id);
+		service.deleteStudent(id);
 	}
-	
+
 	@PostMapping("/user")
 	public ResponseEntity<Object> createStudent(@RequestBody ItemDomain user) {
-		ItemDomain item = userRepository.save(user);
 
-		/*
-		 * URI location = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}")
-		 * .buildAndExpand(item.getItemid()).toUri();
-		 */
-
-		return ResponseEntity.created(ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}")
-				.buildAndExpand(item.getItemid()).toUri()).build();
+		return service.createStudent(user);
 
 	}
-	
-	
+
 	@PutMapping("/users/{id}")
 	public ResponseEntity<Object> updateStudent(@RequestBody ItemDomain user, @PathVariable long id) {
 
-		Optional<ItemDomain> studentOptional = userRepository.findById(id);
-
-		if (!studentOptional.isPresent())
-			return ResponseEntity.notFound().build();
-
-		user.setItemid(id);
-		
-		userRepository.save(user);
+		service.updateStudent(user, id);
 
 		return ResponseEntity.noContent().build();
 	}
